@@ -1,0 +1,43 @@
+version: "3"
+volumes:
+  grafana: null
+services:
+  prometheus:
+    image: "prom/prometheus"
+    hostname: "prometheus"
+    restart: "no"
+    expose:
+      - "9090"
+    volumes:
+      - ./prometheus/:/etc/prometheus/
+    networks:
+      - monitoring
+
+  grafana:
+    image: "grafana/grafana-oss"
+    hostname: "grafana"
+    restart: "no"
+    expose:
+      - "3000"
+    volumes:
+      - grafana:/var/lib/grafana
+    networks:
+      - monitoring
+
+  angie:
+    build: .
+    hostname: "angie"
+    restart: "no"
+    expose:
+      - "80"
+    ports:
+      - "80:80"
+    depends_on:
+      - prometheus
+      - grafana
+    networks:
+      - monitoring
+    entrypoint: [ "angie" ]
+
+networks:
+  monitoring: null
